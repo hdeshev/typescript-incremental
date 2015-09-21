@@ -1,2 +1,5 @@
 src/*.js
 node_modules
+
+.ninja*
+build.ninja
