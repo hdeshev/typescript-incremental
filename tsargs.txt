@@ -1,0 +1,6 @@
+--module commonjs
+--noEmitOnError
+--noImplicitAny
+--emitDecoratorMetadata
+--experimentalDecorators
+--target es5

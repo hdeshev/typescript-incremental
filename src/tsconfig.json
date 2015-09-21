@@ -1,0 +1,11 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "noEmitOnError": true,
+        "noImplicitAny": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "moduleResolution": "classic",
+        "target": "es5"
+    }
+}
