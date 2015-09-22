@@ -1,5 +1,5 @@
 if (process.argv.length != 5) {
-    console.log('USAGE: node getrefs.js <file> <depfile>');
+    console.log('USAGE: node getrefs.js <infile> <outfile> <depfile>');
     process.exit(1);
 }
 
