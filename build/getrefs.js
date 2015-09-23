@@ -1,5 +1,5 @@
-if (process.argv.length != 5) {
-    console.log('USAGE: node getrefs.js <infile> <outfile> <depfile>');
+if (process.argv.length != 6) {
+    console.log('USAGE: node getrefs.js <basedir> <infile> <outfile> <depfile>');
     process.exit(1);
 }
 
@@ -7,33 +7,58 @@ var fs = require('fs');
 var path = require('path');
 
 var refMatcher = /\/\/\/\s*<reference.*path\s*=\s*["']([^"\']+).*/g;
-var infile = process.argv[2];
-var outfile = process.argv[3];
-var depfile = process.argv[4];
 
-fs.readFile(infile, 'utf8', function(err, data) {
-    if (err) {
-        console.log(err.message);
-        process.exit(1);
-    }
+var basedir = process.argv[2];
+var infile = process.argv[3];
+var outfile = process.argv[4];
+var depfile = process.argv[5];
 
+function getDirectRefs(baseDir, filePath) {
     var foundDeps = [];
+    var data = fs.readFileSync(infile, 'utf8');
+
     data.replace(refMatcher, function(_, path) {
         foundDeps.push(path);
     });
+    // Ignore refs outside our source root.
+    // We assume they are external dependencies.
+    var fileDir = path.dirname(filePath);
+    foundDeps = foundDeps.filter(function(dep) {
+        return contains(baseDir, path.join(fileDir, dep));
+    });
 
-    if (foundDeps.length > 0) {
-        var depTimeStamps = foundDeps.map(function(foundDep) {
-            return path.join('.ninja_dts', foundDep + '.build');
-        });
-        var depContents = outfile + ': ' + infile + ' ' + depTimeStamps.join(' ')
+    return foundDeps;
+}
 
-        fs.writeFile(depfile, depContents, function(err) {
-            if(err) {
-                console.log(err.message);
-                process.exit(1);
-            }
-            process.exit(0);
-        });
-    }
-});
+function getRefs(baseDir, filePath) {
+    var directRefs = getDirectRefs(baseDir, filePath);
+    var result = [].concat(directRefs);
+    directRefs.forEach(function(ref) {
+        var allRefs = getRefs(baseDir, ref);
+        result = result.concat(allRefs);
+    });
+    return result;
+}
+
+function contains(dirPath, filePath) {
+    var absoluteDir = path.resolve(dirPath);
+    var absolutePath = path.resolve(filePath);
+    return absolutePath.indexOf(absoluteDir) === 0;
+}
+
+var foundDeps = getRefs(basedir, infile);
+
+if (foundDeps.length > 0) {
+    var depTimeStamps = foundDeps.map(function(foundDep) {
+        return path.join('.ninja_dts', foundDep + '.build');
+    });
+    var depContents = outfile + ': ' + infile + ' ' + depTimeStamps.join(' ')
+
+    fs.writeFile(depfile, depContents, function(err) {
+        if(err) {
+            console.log(err.message);
+            process.exit(1);
+        }
+        process.exit(0);
+    });
+}

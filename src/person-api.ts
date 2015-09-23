@@ -1,3 +1,4 @@
+/// <reference path="address.d.ts" />
 /// <reference path="person.d.ts"/>
 
 import {Person} from "person";
