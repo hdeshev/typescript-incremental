@@ -6,6 +6,6 @@
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
         "moduleResolution": "classic",
-        "target": "es5"
+        "target": "ES5"
     }
 }

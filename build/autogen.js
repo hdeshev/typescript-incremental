@@ -1,9 +1,23 @@
 var buildGen = require('ninja-build-gen');
 var globule = require('globule');
+var compilerOptions = require('../src/tsconfig.json').compilerOptions;
 
 var ninja = buildGen('1.6');
 
-ninja.assign('tsflags', '--module commonjs --noEmitOnError --noImplicitAny --emitDecoratorMetadata --experimentalDecorators --target es5');
+function getTsFlags(compilerOptions) {
+    var opts = [];
+    for (var key in compilerOptions) {
+        var value = compilerOptions[key];
+        if (typeof(value) === 'boolean') {
+            opts.push('--' + key);
+        } else {
+            opts.push('--' + key + ' ' + value);
+        }
+    }
+    return opts.join(' ');
+}
+
+ninja.assign('tsflags', getTsFlags(compilerOptions));
 
 ninja.rule('tsc').run('./node_modules/.bin/tsc $tsflags "$in" && node build/getrefs.js "src" "$in" "$out" "$in.dep"').depfile('$in.dep').description('TypeScript compile: $in');
 
