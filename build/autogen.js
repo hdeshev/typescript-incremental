@@ -25,7 +25,7 @@ ninja.rule('dts').run('touch "$out"').description('TypeScript declarations: $in'
 
 var dtsFiles = globule.findMapping(
     ['**/*.d.ts'],
-    {srcBase: 'src', destBase: '.ninja_dts', ext: '.ts.build', extDot: 'last'}
+    {srcBase: 'src', destBase: '.ninja_dts/src', ext: '.ts.build', extDot: 'last'}
 );
 
 for (var i = 0; i < dtsFiles.length; i++) {

@@ -1,4 +1,4 @@
-///
+/// <reference path="address.d.ts" />
 declare module "person" {
     import {Address} from "address";
 

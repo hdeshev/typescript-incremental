@@ -14,17 +14,17 @@ var outfile = process.argv[4];
 var depfile = process.argv[5];
 
 function getDirectRefs(baseDir, filePath) {
+    var fileDir = path.dirname(filePath);
     var foundDeps = [];
-    var data = fs.readFileSync(infile, 'utf8');
+    var data = fs.readFileSync(filePath, 'utf8');
 
-    data.replace(refMatcher, function(_, path) {
-        foundDeps.push(path);
+    data.replace(refMatcher, function(_, relativePath) {
+        foundDeps.push(path.join(fileDir, relativePath));
     });
     // Ignore refs outside our source root.
     // We assume they are external dependencies.
-    var fileDir = path.dirname(filePath);
     foundDeps = foundDeps.filter(function(dep) {
-        return contains(baseDir, path.join(fileDir, dep));
+        return contains(baseDir, dep);
     });
 
     return foundDeps;
